@@ -1,10 +1,21 @@
+# Path: roles/fail2ban/templates/jail.local.j2
+# Managed by Ansible
+
 [DEFAULT]
+# Human-readable time formats (Your approach)
 bantime  = 1h
 findtime = 10m
-maxretry = 5
+
+# Aggressive security posture (My approach)
+maxretry = 3
+
+# Safeguards and centralized firewalling (My approach)
+ignoreip = 127.0.0.1/8 ::1
+banaction = ufw
 
 [sshd]
 enabled = true
 port    = ssh
+# Dynamic OS-agnostic paths (Your approach)
 logpath = %(sshd_log)s
 backend = %(sshd_backend)s

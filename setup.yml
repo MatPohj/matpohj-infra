@@ -3,3 +3,5 @@
   become: yes # This tells Ansible to use 'sudo' to escalate privileges
   roles:
     - hardening
+    - monitoring
+    - deploy

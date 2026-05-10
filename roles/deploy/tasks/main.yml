@@ -1,0 +1,36 @@
+- name: Install git
+  apt:
+    name: git
+    state: present
+
+- name: Clone personalwebsite repository
+  git:
+    repo: 'https://github.com/MatPohj/PersonalWebsite.git'
+    dest: /var/www/matpohj.fi/html
+    version: main
+    force: yes
+  become: yes
+  become_user: sysadmin
+  # Capture the output of this task into a variable
+  register: git_clone_result
+
+- name: Set correct permissions for Nginx to read
+  file:
+    path: /var/www/matpohj.fi/html
+    state: directory
+    recurse: yes
+    owner: sysadmin
+    group: www-data
+    # Capital 'X' means apply execute bit ONLY to directories, not files
+    mode: 'u=rwX,g=rX,o=rX'
+  # ONLY run this task if the git task above actually pulled new code
+  when: git_clone_result.changed
+
+- name: Check if SSL certificate already exists
+  stat:
+    path: /etc/letsencrypt/live/matpohj.fi/fullchain.pem
+  register: ssl_cert
+
+- name: Obtain Let's Encrypt SSL certificate
+  command: certbot --nginx -d matpohj.fi -d www.matpohj.fi --non-interactive --agree-tos -m arimomatti18@gmail.com
+  when: not ssl_cert.stat.exists

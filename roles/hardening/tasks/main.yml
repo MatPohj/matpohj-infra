@@ -14,6 +14,11 @@
     rule: allow
     name: OpenSSH
 
+- name: Allow nginx
+  community.general.ufw:
+    rule: allow
+    name: Nginx full
+
 - name: Enable UFW
   community.general.ufw:
     state: enabled

@@ -31,6 +31,13 @@
     append: yes
     create_home: yes
 
+- name: Deploy SSH Key for sysadmin
+  ansible.posix.authorized_key:
+    user: sysadmin
+    state: present
+    # This reads your local public key and pushes it to the server
+    key: "{{ lookup('file', '../../../id_ed25519.pub') }}"
+
 - name: Disable root SSH login
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config

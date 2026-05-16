@@ -1,8 +1,12 @@
-- name: Install git
-  apt:
-    name: git
+- name: Install Web Infrastructure packages
+  ansible.builtin.apt:
+    name: 
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+      - git
     state: present
-
+    update_cache: yes
 - name: Clone personalwebsite repository
   git:
     repo: 'https://github.com/MatPohj/PersonalWebsite.git'
@@ -25,6 +29,29 @@
     mode: 'u=rwX,g=rX,o=rX'
   # ONLY run this task if the git task above actually pulled new code
   when: git_clone_result.changed
+
+
+- name: Push Nginx virtual host configuration
+  ansible.builtin.copy:
+    src: matpohj.fi
+    dest: /etc/nginx/sites-available/matpohj.fi
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Nginx
+
+- name: Enable Nginx virtual host
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/matpohj.fi
+    dest: /etc/nginx/sites-enabled/matpohj.fi
+    state: link
+  notify: Restart Nginx
+
+- name: Remove default Nginx virtual host
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Restart Nginx
 
 - name: Check if SSL certificate already exists
   stat:

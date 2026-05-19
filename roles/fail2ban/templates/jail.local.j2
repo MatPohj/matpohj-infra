@@ -1,0 +1,41 @@
+# Path: roles/fail2ban/templates/jail.local.j2
+# Managed by Ansible
+
+[DEFAULT]
+# Human-readable time formats (Your approach)
+bantime  = 1h
+findtime = 10m
+
+# Aggressive security posture (My approach)
+maxretry = 3
+
+# Safeguards and centralized firewalling (My approach)
+ignoreip = 127.0.0.1/8 ::1
+banaction = ufw
+
+[sshd]
+enabled = true
+port    = ssh
+# Dynamic OS-agnostic paths (Your approach)
+logpath = %(sshd_log)s
+backend = %(sshd_backend)s
+
+[nginx-http-auth]
+enabled = {{ 'true' if fail2ban_nginx_error_log_exists | default(false) else 'false' }}
+filter = nginx-http-auth
+port = http,https
+logpath = /var/log/nginx/error.log
+
+[nginx-badbots]
+enabled = {{ 'true' if fail2ban_nginx_access_log_exists | default(false) else 'false' }}
+filter = nginx-badbots
+port = http,https
+logpath = /var/log/nginx/access.log
+maxretry = 2
+
+[nginx-botsearch]
+enabled = {{ 'true' if fail2ban_nginx_access_log_exists | default(false) else 'false' }}
+filter = nginx-botsearch
+port = http,https
+logpath = /var/log/nginx/access.log
+maxretry = 2

@@ -1,0 +1,24 @@
+- name: Ensure UFW is installed
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: yes
+
+- name: Set UFW default deny incoming
+  community.general.ufw:
+    default: deny
+    direction: incoming
+
+- name: Limit OpenSSH through UFW
+  community.general.ufw:
+    rule: limit
+    name: OpenSSH
+
+- name: Allow Nginx
+  community.general.ufw:
+    rule: allow
+    name: Nginx full
+
+- name: Enable UFW
+  community.general.ufw:
+    state: enabled

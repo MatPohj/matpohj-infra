@@ -1,0 +1,9 @@
+- name: Set correct permissions for Nginx to read
+  ansible.builtin.file:
+    path: /var/www/matpohj.fi/html
+    state: directory
+    recurse: yes
+    owner: sysadmin
+    group: www-data
+    mode: 'u=rwX,g=rX,o=rX'
+  when: git_clone_result.changed

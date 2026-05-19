@@ -1,0 +1,9 @@
+- name: Clone personalwebsite repository
+  ansible.builtin.git:
+    repo: 'https://github.com/MatPohj/PersonalWebsite.git'
+    dest: /var/www/matpohj.fi/html
+    version: main
+    force: yes
+  become: yes
+  become_user: sysadmin
+  register: git_clone_result

@@ -1,0 +1,11 @@
+- name: Install Fail2ban
+  ansible.builtin.import_tasks: install.yml
+
+- name: Check Nginx log availability
+  ansible.builtin.import_tasks: checks.yml
+
+- name: Configure Fail2ban
+  ansible.builtin.import_tasks: config.yml
+
+- name: Ensure Fail2ban service
+  ansible.builtin.import_tasks: service.yml

@@ -1,63 +1,17 @@
-- name: Install Web Infrastructure packages
-  ansible.builtin.apt:
-    name: 
-      - nginx
-      - certbot
-      - python3-certbot-nginx
-      - git
-    state: present
-    update_cache: yes
-- name: Clone personalwebsite repository
-  git:
-    repo: 'https://github.com/MatPohj/PersonalWebsite.git'
-    dest: /var/www/matpohj.fi/html
-    version: main
-    force: yes
-  become: yes
-  become_user: sysadmin
-  # Capture the output of this task into a variable
-  register: git_clone_result
+- name: Install packages
+  ansible.builtin.import_tasks: packages.yml
 
-- name: Set correct permissions for Nginx to read
-  file:
-    path: /var/www/matpohj.fi/html
-    state: directory
-    recurse: yes
-    owner: sysadmin
-    group: www-data
-    # Capital 'X' means apply execute bit ONLY to directories, not files
-    mode: 'u=rwX,g=rX,o=rX'
-  # ONLY run this task if the git task above actually pulled new code
-  when: git_clone_result.changed
+- name: Prepare web root
+  ansible.builtin.import_tasks: webroot.yml
 
+- name: Deploy site code
+  ansible.builtin.import_tasks: repo.yml
 
-- name: Push Nginx virtual host configuration
-  ansible.builtin.copy:
-    src: matpohj.fi
-    dest: /etc/nginx/sites-available/matpohj.fi
-    owner: root
-    group: root
-    mode: '0644'
-  notify: Restart Nginx
+- name: Fix permissions
+  ansible.builtin.import_tasks: permissions.yml
 
-- name: Enable Nginx virtual host
-  ansible.builtin.file:
-    src: /etc/nginx/sites-available/matpohj.fi
-    dest: /etc/nginx/sites-enabled/matpohj.fi
-    state: link
-  notify: Restart Nginx
+- name: Configure Nginx
+  ansible.builtin.import_tasks: nginx.yml
 
-- name: Remove default Nginx virtual host
-  ansible.builtin.file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
-  notify: Restart Nginx
-
-- name: Check if SSL certificate already exists
-  stat:
-    path: /etc/letsencrypt/live/matpohj.fi/fullchain.pem
-  register: ssl_cert
-
-- name: Obtain Let's Encrypt SSL certificate
-  command: certbot --nginx -d matpohj.fi -d www.matpohj.fi --non-interactive --agree-tos -m arimomatti18@gmail.com
-  when: not ssl_cert.stat.exists
+- name: Configure TLS
+  ansible.builtin.import_tasks: certbot.yml

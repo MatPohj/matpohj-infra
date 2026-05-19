@@ -1,0 +1,9 @@
+- name: Install web infrastructure packages
+  ansible.builtin.apt:
+    name:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+      - git
+    state: present
+    update_cache: yes

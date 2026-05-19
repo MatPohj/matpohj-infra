@@ -1,0 +1,13 @@
+- name: Ensure sysadmin user exists and is in sudo group
+  ansible.builtin.user:
+    name: sysadmin
+    state: present
+    groups: sudo
+    append: yes
+    create_home: yes
+
+- name: Deploy SSH Key for sysadmin
+  ansible.posix.authorized_key:
+    user: sysadmin
+    state: present
+    key: "{{ lookup('file', ssh_public_key_path) }}"

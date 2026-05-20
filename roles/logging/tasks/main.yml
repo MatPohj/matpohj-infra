@@ -16,6 +16,14 @@
           - logging_loki_url | length > 0
         fail_msg: Set logging_loki_url to your Loki endpoint before enabling the logging role.
 
+    - name: Require Loki basic auth credentials when enabled
+      ansible.builtin.assert:
+        that:
+          - logging_loki_username | length > 0
+          - logging_loki_password | length > 0
+        fail_msg: Set logging_loki_username and logging_loki_password when logging_loki_basic_auth_enabled is true.
+      when: logging_loki_basic_auth_enabled | bool
+
     - name: Ensure logging prerequisites are installed
       ansible.builtin.apt:
         name:

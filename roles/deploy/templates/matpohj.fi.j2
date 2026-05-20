@@ -21,11 +21,11 @@ server {
     location / {
         try_files $uri $uri/ =404;
     }
-        location ~ /\.(git|env) {
-            deny all;
-            access_log off;
-            log_not_found off;
-        }
+    location ~ /\.(git|env) {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
     listen [::]:443 ssl ipv6only=on; # managed by Certbot
     listen 443 ssl; # managed by Certbot
     ssl_certificate /etc/letsencrypt/live/matpohj.fi/fullchain.pem; # managed by Certbot

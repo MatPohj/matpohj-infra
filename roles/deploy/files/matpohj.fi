@@ -15,6 +15,9 @@ server {
     # Hide Nginx version
     server_tokens off;
 
+    access_log /var/log/nginx/matpohj.access.log siem_json;
+    error_log /var/log/nginx/matpohj.error.log warn;
+
     location / {
         try_files $uri $uri/ =404;
     }

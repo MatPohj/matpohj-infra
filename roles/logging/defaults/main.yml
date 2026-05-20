@@ -1,0 +1,8 @@
+logging_enabled: false
+logging_loki_url: ""
+logging_loki_username: ""
+logging_loki_password: ""
+logging_promtail_http_listen_port: 9080
+logging_geoip_enabled: false
+logging_geoip_db_path: /etc/promtail/GeoLite2-City.mmdb
+logging_collect_ufw: true

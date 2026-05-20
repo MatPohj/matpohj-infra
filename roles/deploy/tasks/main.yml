@@ -32,8 +32,8 @@
 
 
 - name: Push Nginx virtual host configuration
-  ansible.builtin.copy:
-    src: matpohj.fi
+  ansible.builtin.template:
+    src: matpohj.fi.j2
     dest: /etc/nginx/sites-available/matpohj.fi
     owner: root
     group: root

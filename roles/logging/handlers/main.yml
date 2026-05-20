@@ -2,3 +2,8 @@
   ansible.builtin.service:
     name: promtail
     state: restarted
+
+- name: Restart logging Nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted

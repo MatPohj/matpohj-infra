@@ -47,7 +47,7 @@ logging_geoip_db_path: /etc/promtail/GeoLite2-City.mmdb
 - Top source IPs hitting the site:
   - `topk(10, sum by (remote_addr) (count_over_time({job="nginx_access"} | json [24h])))`
 - Suspicious probes for `.env`, `.git`, `wp-login.php`, `admin`:
-  - `{job="nginx_access"} | json | request_path=~".*(\\\\.env|\\\\.git|wp-login|admin).*"` (use double escaping in Grafana/LogQL string literals)
+  - `{job="nginx_access"} | json | request_path=~".*(\\.env|\\.git|wp-login|admin).*"`
 - Repeated 401/403/404 responses:
   - `{job="nginx_access"} | json | status=~"401|403|404"`
 - Fail2ban bans over time:

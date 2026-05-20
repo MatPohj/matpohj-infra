@@ -7,9 +7,9 @@ log_format siem_json escape=json
     '"request_method":"$request_method",'
     '"request_uri":"$request_uri",'
     '"request_path":"$uri",'
-    '"status":"$status",'
-    '"body_bytes_sent":"$body_bytes_sent",'
-    '"request_time":"$request_time",'
+    '"status":$status,'
+    '"body_bytes_sent":$body_bytes_sent,'
+    '"request_time":$request_time,'
     '"referer":"$http_referer",'
     '"user_agent":"$http_user_agent"'
   '}';

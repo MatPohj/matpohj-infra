@@ -20,7 +20,7 @@ The Nginx access log is emitted as JSON so Grafana/Loki queries can easily filte
 - request method
 - request path
 - status code
-- referrer
+- referer
 - user agent
 
 ### Required inventory variables

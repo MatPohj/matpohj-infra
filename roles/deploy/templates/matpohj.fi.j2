@@ -15,8 +15,8 @@ server {
     # Hide Nginx version
     server_tokens off;
 
-    access_log {{ logging_nginx_access_log_path | default('/var/log/nginx/matpohj.access.log') }} siem_json;
-    error_log {{ logging_nginx_error_log_path | default('/var/log/nginx/matpohj.error.log') }} warn;
+    access_log {{ logging_nginx_access_log_path | default('/var/log/nginx/site.access.log') }} siem_json;
+    error_log {{ logging_nginx_error_log_path | default('/var/log/nginx/site.error.log') }} warn;
 
     location / {
         try_files $uri $uri/ =404;

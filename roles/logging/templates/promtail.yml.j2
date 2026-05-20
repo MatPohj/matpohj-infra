@@ -7,7 +7,7 @@ positions:
 
 clients:
   - url: {{ logging_loki_url | to_json }}
-{% if logging_loki_username | length > 0 and logging_loki_password | length > 0 %}
+{% if logging_loki_basic_auth_enabled %}
     basic_auth:
       username: {{ logging_loki_username | to_json }}
       password: {{ logging_loki_password | to_json }}

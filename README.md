@@ -8,8 +8,8 @@ This repository now includes a `logging` role that can ship security-relevant lo
 
 Log sources:
 
-- `/var/log/nginx/matpohj.access.log`
-- `/var/log/nginx/matpohj.error.log`
+- `/var/log/nginx/site.access.log` (configurable via `logging_nginx_access_log_path`)
+- `/var/log/nginx/site.error.log` (configurable via `logging_nginx_error_log_path`)
 - `/var/log/auth.log`
 - `/var/log/fail2ban.log`
 - `/var/log/ufw.log`
@@ -30,6 +30,7 @@ Set these in inventory or vaulted group vars before running the playbook:
 ```yaml
 logging_enabled: true
 logging_loki_url: "https://logs.example.com/loki/api/v1/push"
+logging_loki_basic_auth_enabled: true
 logging_loki_username: "tenant-or-user"
 logging_loki_password: "replace-me"
 ```
@@ -46,7 +47,7 @@ logging_geoip_db_path: /etc/promtail/GeoLite2-City.mmdb
 - Top source IPs hitting the site:
   - `topk(10, sum by (remote_addr) (count_over_time({job="nginx_access"} | json [24h])))`
 - Suspicious probes for `.env`, `.git`, `wp-login.php`, `admin`:
-  - `{job="nginx_access"} | json | request_path=~".*(\\.env|\\.git|wp-login|admin).*"`
+  - `{job="nginx_access"} | json | request_path=~".*(\\\\.env|\\\\.git|wp-login|admin).*"` (use double escaping in Grafana/LogQL string literals)
 - Repeated 401/403/404 responses:
   - `{job="nginx_access"} | json | status=~"401|403|404"`
 - Fail2ban bans over time:

@@ -21,7 +21,7 @@ scrape_configs:
         labels:
           job: nginx_access
           host: {{ inventory_hostname | to_json }}
-          __path__: /var/log/nginx/matpohj.access.log
+          __path__: {{ logging_nginx_access_log_path | to_json }}
     pipeline_stages:
       - json:
           expressions:
@@ -46,7 +46,7 @@ scrape_configs:
         labels:
           job: nginx_error
           host: {{ inventory_hostname | to_json }}
-          __path__: /var/log/nginx/matpohj.error.log
+          __path__: {{ logging_nginx_error_log_path | to_json }}
 
   - job_name: auth
     static_configs:

@@ -6,3 +6,5 @@ logging_promtail_http_listen_port: 9080
 logging_geoip_enabled: false
 logging_geoip_db_path: /etc/promtail/GeoLite2-City.mmdb
 logging_collect_ufw: true
+logging_nginx_access_log_path: /var/log/nginx/matpohj.access.log
+logging_nginx_error_log_path: /var/log/nginx/matpohj.error.log

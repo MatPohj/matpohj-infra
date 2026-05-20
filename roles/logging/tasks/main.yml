@@ -5,7 +5,7 @@
     owner: root
     group: root
     mode: '0644'
-  notify: Restart Nginx
+  notify: Restart logging Nginx
 
 - name: Configure centralized log shipping
   when: logging_enabled | bool

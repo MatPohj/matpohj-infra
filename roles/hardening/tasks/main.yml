@@ -22,9 +22,6 @@
 - name: Enable UFW
   community.general.ufw:
     state: enabled
-
-- name: Enable low-volume UFW logging
-  community.general.ufw:
     logging: low
 
 - name: Ensure sysadmin user exists and is in sudo group

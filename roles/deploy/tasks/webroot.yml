@@ -1,7 +1,0 @@
-- name: Ensure web root parent exists
-  ansible.builtin.file:
-    path: /var/www/matpohj.fi
-    state: directory
-    owner: sysadmin
-    group: www-data
-    mode: '0755'

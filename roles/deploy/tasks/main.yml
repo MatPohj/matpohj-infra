@@ -1,17 +1,80 @@
-- name: Install packages
-  ansible.builtin.import_tasks: packages.yml
+- name: Packages
+  block:
+    - name: Install web infrastructure packages
+      ansible.builtin.apt:
+        name:
+          - nginx
+          - certbot
+          - python3-certbot-nginx
+          - git
+        state: present
+        update_cache: yes
 
-- name: Prepare web root
-  ansible.builtin.import_tasks: webroot.yml
+- name: Web root
+  block:
+    - name: Ensure web root parent exists
+      ansible.builtin.file:
+        path: /var/www/matpohj.fi
+        state: directory
+        owner: sysadmin
+        group: www-data
+        mode: '0755'
 
-- name: Deploy site code
-  ansible.builtin.import_tasks: repo.yml
+- name: Site code
+  block:
+    - name: Clone personalwebsite repository
+      ansible.builtin.git:
+        repo: 'https://github.com/MatPohj/PersonalWebsite.git'
+        dest: /var/www/matpohj.fi/html
+        version: main
+        force: yes
+      become: yes
+      become_user: sysadmin
+      register: git_clone_result
 
-- name: Fix permissions
-  ansible.builtin.import_tasks: permissions.yml
+- name: Permissions
+  block:
+    - name: Set correct permissions for Nginx to read
+      ansible.builtin.file:
+        path: /var/www/matpohj.fi/html
+        state: directory
+        recurse: yes
+        owner: sysadmin
+        group: www-data
+        mode: 'u=rwX,g=rX,o=rX'
+      when: git_clone_result.changed
 
-- name: Configure Nginx
-  ansible.builtin.import_tasks: nginx.yml
+- name: Nginx
+  block:
+    - name: Push Nginx virtual host configuration
+      ansible.builtin.copy:
+        src: matpohj.fi
+        dest: /etc/nginx/sites-available/matpohj.fi
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Restart Nginx
 
-- name: Configure TLS
-  ansible.builtin.import_tasks: certbot.yml
+    - name: Enable Nginx virtual host
+      ansible.builtin.file:
+        src: /etc/nginx/sites-available/matpohj.fi
+        dest: /etc/nginx/sites-enabled/matpohj.fi
+        state: link
+      notify: Restart Nginx
+
+    - name: Remove default Nginx virtual host
+      ansible.builtin.file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: Restart Nginx
+
+- name: TLS
+  block:
+    - name: Check if SSL certificate already exists
+      ansible.builtin.stat:
+        path: /etc/letsencrypt/live/matpohj.fi/fullchain.pem
+      register: ssl_cert
+
+    - name: Obtain Let's Encrypt SSL certificate
+      ansible.builtin.command: certbot --nginx -d matpohj.fi -d www.matpohj.fi --non-interactive --agree-tos -m arimomatti18@gmail.com
+      when: not ssl_cert.stat.exists

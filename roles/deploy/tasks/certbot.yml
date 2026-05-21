@@ -1,8 +1,0 @@
-- name: Check if SSL certificate already exists
-  ansible.builtin.stat:
-    path: /etc/letsencrypt/live/matpohj.fi/fullchain.pem
-  register: ssl_cert
-
-- name: Obtain Let's Encrypt SSL certificate
-  ansible.builtin.command: certbot --nginx -d matpohj.fi -d www.matpohj.fi --non-interactive --agree-tos -m arimomatti18@gmail.com
-  when: not ssl_cert.stat.exists

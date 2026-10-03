@@ -1,14 +1,25 @@
 - name: Install Web Infrastructure packages
   ansible.builtin.apt:
-    name: 
+    name:
       - nginx
       - certbot
       - python3-certbot-nginx
       - git
     state: present
     update_cache: yes
+
+# On a fresh server /var/www/matpohj.fi does not exist and sysadmin cannot create
+# it under the root-owned /var/www, so the git clone below would fail.
+- name: Create web root directory
+  ansible.builtin.file:
+    path: /var/www/matpohj.fi/html
+    state: directory
+    owner: sysadmin
+    group: www-data
+    mode: '0755'
+
 - name: Clone personalwebsite repository
-  git:
+  ansible.builtin.git:
     repo: 'https://github.com/MatPohj/PersonalWebsite.git'
     dest: /var/www/matpohj.fi/html
     version: main
@@ -19,7 +30,7 @@
   register: git_clone_result
 
 - name: Set correct permissions for Nginx to read
-  file:
+  ansible.builtin.file:
     path: /var/www/matpohj.fi/html
     state: directory
     recurse: yes
@@ -30,14 +41,34 @@
   # ONLY run this task if the git task above actually pulled new code
   when: git_clone_result.changed
 
+# The full vhost references the Let's Encrypt certificate files, and nginx will
+# not start (or reload) with a config that points at files which do not exist.
+# So the certificate state decides which vhost is pushed:
+#   no certificate yet -> HTTP-only bootstrap vhost, then certbot
+#   certificate exists -> full HTTPS vhost
+- name: Check if SSL certificate already exists
+  ansible.builtin.stat:
+    path: /etc/letsencrypt/live/matpohj.fi/fullchain.pem
+  register: ssl_cert
 
-- name: Push Nginx virtual host configuration
+- name: Push bootstrap HTTP-only Nginx virtual host (no certificate yet)
+  ansible.builtin.copy:
+    src: matpohj.fi.http
+    dest: /etc/nginx/sites-available/matpohj.fi
+    owner: root
+    group: root
+    mode: '0644'
+  when: not ssl_cert.stat.exists
+  notify: Restart Nginx
+
+- name: Push full HTTPS Nginx virtual host configuration
   ansible.builtin.copy:
     src: matpohj.fi
     dest: /etc/nginx/sites-available/matpohj.fi
     owner: root
     group: root
     mode: '0644'
+  when: ssl_cert.stat.exists
   notify: Restart Nginx
 
 - name: Enable Nginx virtual host
@@ -53,11 +84,17 @@
     state: absent
   notify: Restart Nginx
 
-- name: Check if SSL certificate already exists
-  stat:
-    path: /etc/letsencrypt/live/matpohj.fi/fullchain.pem
-  register: ssl_cert
+# certbot needs nginx to serve the bootstrap vhost on port 80 right now, so
+# restart here instead of waiting for the handlers at the end of the play.
+- name: Apply bootstrap vhost before requesting the certificate
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+  when: not ssl_cert.stat.exists
 
+# Requires DNS for matpohj.fi and www.matpohj.fi to already point at this server.
 - name: Obtain Let's Encrypt SSL certificate
-  command: certbot --nginx -d matpohj.fi -d www.matpohj.fi --non-interactive --agree-tos -m arimomatti18@gmail.com
+  ansible.builtin.command:
+    cmd: certbot --nginx -d matpohj.fi -d www.matpohj.fi --non-interactive --agree-tos -m arimomatti18@gmail.com
+    creates: /etc/letsencrypt/live/matpohj.fi/fullchain.pem
   when: not ssl_cert.stat.exists

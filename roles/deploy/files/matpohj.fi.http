@@ -1,0 +1,23 @@
+# Bootstrap vhost: HTTP only, used until the Let's Encrypt certificate exists.
+# After certbot has run, the deploy role pushes the full HTTPS vhost (matpohj.fi) instead.
+server {
+    listen 80;
+    listen [::]:80;
+    server_name matpohj.fi www.matpohj.fi;
+
+    root /var/www/matpohj.fi/html;
+    index index.html;
+
+    # Hide Nginx version
+    server_tokens off;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ /\.(git|env) {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+}

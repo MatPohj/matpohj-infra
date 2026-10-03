@@ -2,6 +2,6 @@
   hosts: all
   become: yes # This tells Ansible to use 'sudo' to escalate privileges
   roles:
-    - hardening
-    - monitoring
-    - deploy
+    - { role: hardening, tags: ['hardening'] }
+    - { role: monitoring, tags: ['monitoring'] }
+    - { role: deploy, tags: ['deploy'] }

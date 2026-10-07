@@ -1,6 +1,14 @@
 - name: Provision and Harden VPS
   hosts: all
   become: yes # This tells Ansible to use 'sudo' to escalate privileges
+  pre_tasks:
+    # On a brand new server cloud-init and unattended-upgrades run during first
+    # boot and hold the apt lock, which makes the first apt task fail.
+    - name: Wait for cloud-init to finish
+      ansible.builtin.command: cloud-init status --wait
+      changed_when: false
+      failed_when: false
+      tags: always
   roles:
     - { role: hardening, tags: ['hardening'] }
     - { role: monitoring, tags: ['monitoring'] }

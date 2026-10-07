@@ -1,14 +1,14 @@
+# {{ ansible_managed }}
 # Bootstrap vhost: HTTP only, used until the Let's Encrypt certificate exists.
-# After certbot has run, the deploy role pushes the full HTTPS vhost (matpohj.fi) instead.
+# After certbot has run, the deploy role pushes the HTTPS vhost instead.
 server {
     listen 80;
     listen [::]:80;
-    server_name matpohj.fi www.matpohj.fi;
+    server_name {{ ([domain] + domain_aliases) | join(' ') }};
 
-    root /var/www/matpohj.fi/html;
+    root {{ web_root }};
     index index.html;
 
-    # Hide Nginx version
     server_tokens off;
 
     location / {

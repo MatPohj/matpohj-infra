@@ -1,0 +1,12 @@
+# Primary domain. Also used for the vhost file name, web root and certificate path.
+domain: matpohj.fi
+# Extra names served by the same site and included in the certificate.
+domain_aliases:
+  - www.matpohj.fi
+
+site_repo: https://github.com/MatPohj/PersonalWebsite.git
+site_version: main
+web_root: "/var/www/{{ domain }}/html"
+
+# Contact address for the Let's Encrypt account. Leave empty to register without one.
+certbot_email: ""

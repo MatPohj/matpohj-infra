@@ -1,3 +1,10 @@
+# Handlers run in the order they are defined, so a broken config fails the run
+# here and the running nginx keeps serving the previous config.
+- name: Check Nginx config
+  ansible.builtin.command: nginx -t
+  changed_when: false
+  listen: Restart Nginx
+
 - name: Restart Nginx
   ansible.builtin.service:
     name: nginx

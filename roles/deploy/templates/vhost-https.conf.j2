@@ -1,7 +1,17 @@
 # {{ ansible_managed }}
+
+# HTTPS requests for any other name, or for the bare IP, are refused during the
+# TLS handshake instead of being answered with this site.
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name _;
+    ssl_reject_handshake on;
+}
+
 server {
     listen 443 ssl;
-    listen [::]:443 ssl ipv6only=on;
+    listen [::]:443 ssl;
     server_name {{ ([domain] + domain_aliases) | join(' ') }};
 
     root {{ web_root }};
@@ -12,9 +22,14 @@ server {
     include /etc/letsencrypt/options-ssl-nginx.conf;
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-XSS-Protection "1; mode=block";
-    add_header X-Content-Type-Options "nosniff";
+    # "always" so the headers are also sent on error responses such as 404.
+    add_header Strict-Transport-Security "max-age=31536000" always;
+    # Everything is self-hosted. Inline style attributes are allowed because
+    # markdown-it writes table column alignment as style="text-align: ...".
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' https:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
 
     server_tokens off;
 
@@ -34,6 +49,8 @@ server {
     listen 80;
     listen [::]:80;
     server_name {{ ([domain] + domain_aliases) | join(' ') }};
+
+    server_tokens off;
 
 {% for name in [domain] + domain_aliases %}
     if ($host = {{ name }}) {

@@ -1,4 +1,4 @@
-# mng
+# matpohj-infra
 
 Ansible playbook that provisions, hardens and deploys matpohj.fi on a VPS.
 

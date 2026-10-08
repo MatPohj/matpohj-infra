@@ -32,6 +32,7 @@
 - name: Ensure sysadmin user exists and is in sudo group
   ansible.builtin.user:
     name: sysadmin
+    shell: /bin/bash
     state: present
     groups: sudo
     append: yes

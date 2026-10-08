@@ -92,6 +92,16 @@ ansible-playbook setup.yml --tags deploy
 
 Other tags: `hardening`, `monitoring`.
 
+## Upgrading packages
+
+Security updates are installed automatically by unattended-upgrades. To apply
+all other pending updates, run the separate upgrade playbook. It reboots the
+server only if an update requires it:
+
+```sh
+ansible-playbook upgrade.yml
+```
+
 ## Design notes
 
 Some problems only show up on a brand-new server. The playbook handles them so the first run works without manual fixes:

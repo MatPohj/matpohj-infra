@@ -13,3 +13,26 @@
     - { role: hardening, tags: ['hardening'] }
     - { role: monitoring, tags: ['monitoring'] }
     - { role: deploy, tags: ['deploy'] }
+  # Read-only report: never upgrades or reboots, only tells you when to run
+  # upgrade.yml. unattended-upgrades installs security patches but does not reboot.
+  post_tasks:
+    - name: Check if a reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+      tags: always
+
+    - name: Count pending security updates
+      ansible.builtin.shell: apt list --upgradable 2>/dev/null | grep -c -- '-security' || true
+      register: security_updates
+      changed_when: false
+      tags: always
+
+    - name: Warn about pending reboot or security updates
+      ansible.builtin.debug:
+        msg: >-
+          {{ 'Reboot required. ' if reboot_required.stat.exists else '' }}{{
+          security_updates.stdout ~ ' security update(s) pending. '
+          if security_updates.stdout | int > 0 else '' }}Run: ansible-playbook upgrade.yml
+      when: reboot_required.stat.exists or security_updates.stdout | int > 0
+      tags: always

@@ -101,3 +101,27 @@
   failed_when: >-
     'permitrootlogin no' not in sshd_effective.stdout
     or 'passwordauthentication no' not in sshd_effective.stdout
+
+# Ubuntu enables this by default, but enforce it so security updates are
+# installed daily even if an image or a person turned it off.
+- name: Ensure unattended-upgrades is installed
+  ansible.builtin.apt:
+    name: unattended-upgrades
+    state: present
+
+- name: Enable daily automatic security updates
+  ansible.builtin.copy:
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+    content: |
+      // Managed by Ansible
+      APT::Periodic::Update-Package-Lists "1";
+      APT::Periodic::Unattended-Upgrade "1";
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Ensure unattended-upgrades service is enabled and running
+  ansible.builtin.service:
+    name: unattended-upgrades
+    enabled: yes
+    state: started

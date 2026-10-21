@@ -8,5 +8,13 @@ site_repo: https://github.com/MatPohj/PersonalWebsite.git
 site_version: main
 web_root: "/var/www/{{ domain }}/html"
 
+# Course repositories cloned into {{ web_root }}/blogs/<dest>. Keep in sync with
+# fetch-blogs.sh and the paths in the site's blogs/metadata.json.
+blog_repos:
+  - { repo: "https://github.com/MatPohj/Application-Hacking.git", dest: Application-Hacking }
+  - { repo: "https://github.com/MatPohj/Network-Attacks-and-Reconnaissance-Autumn-25.git", dest: network_attacks_and_reconnaissance }
+  - { repo: "https://github.com/MatPohj/PenetrationTesting25S.git", dest: penetration_testing }
+  - { repo: "https://github.com/MatPohj/Palvelinten-hallinta-25-kevat.git", dest: server_management }
+
 # Contact address for the Let's Encrypt account. Leave empty to register without one.
 certbot_email: ""

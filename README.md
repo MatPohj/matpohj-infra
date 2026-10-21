@@ -2,7 +2,7 @@
 
 Ansible playbook that turns a fresh Ubuntu VPS into a hardened web server and deploys [matpohj.fi](https://matpohj.fi) to it.
 
-The whole server is described in code: create a VPS, point DNS at it, run one command, and you get the same locked-down machine serving the site over HTTPS every time. Nothing is configured by hand, so the server can be thrown away and rebuilt in minutes. The site itself lives in a separate repository, [MatPohj/PersonalWebsite](https://github.com/MatPohj/PersonalWebsite), and this playbook pulls it onto the server.
+The whole server is described in code: create a VPS, point DNS at it, run one command, and you get the same locked-down machine serving the site over HTTPS every time. Nothing is configured by hand, so the server can be thrown away and rebuilt in minutes. The site itself lives in a separate repository, [MatPohj/PersonalWebsite](https://github.com/MatPohj/PersonalWebsite), and this playbook pulls it onto the server, together with the course repositories that hold the blog posts.
 
 It is my personal infrastructure, but the roles are parameterised, so you can use it for your own static site, or read it as a small example of a hardening and deployment playbook.
 
@@ -48,6 +48,7 @@ Then change the settings that point at my setup:
   | `domain_aliases` | Extra names served by the same site and included in the certificate | `[www.matpohj.fi]` |
   | `site_repo` | Git repository with the static site | `https://github.com/MatPohj/PersonalWebsite.git` |
   | `site_version` | Branch, tag or commit to deploy | `main` |
+  | `blog_repos` | Repositories cloned into `blogs/<dest>` inside the web root | the four course repos |
   | `web_root` | Directory nginx serves | `/var/www/{{ domain }}/html` |
   | `certbot_email` | Let's Encrypt contact address; empty registers without one | `""` |
 
@@ -84,7 +85,7 @@ The site repository is served as is: there is no build step, so it must contain 
 
 ## Publishing the website
 
-Push to `main` in the site repository, then run only the deploy role:
+Push to `main` in the site repository and/or the course repository you changed, then run only the deploy role:
 
 ```sh
 ansible-playbook setup.yml --tags deploy

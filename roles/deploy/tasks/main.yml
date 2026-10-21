@@ -28,6 +28,20 @@
   become_user: sysadmin
   register: git_clone_result
 
+# The write-ups live in their own repositories, so a post is edited in one
+# place only. Shallow clones: only the latest files are needed.
+- name: Clone blog repositories
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "{{ web_root }}/blogs/{{ item.dest }}"
+    version: main
+    depth: 1
+    force: yes
+  loop: "{{ blog_repos }}"
+  become: yes
+  become_user: sysadmin
+  register: blog_clone_result
+
 - name: Set correct permissions for Nginx to read
   ansible.builtin.file:
     path: "{{ web_root }}"
@@ -37,7 +51,7 @@
     group: www-data
     # Capital 'X' means apply execute bit ONLY to directories, not files
     mode: 'u=rwX,g=rX,o=rX'
-  when: git_clone_result.changed
+  when: git_clone_result.changed or blog_clone_result.changed
 
 # The full vhost references the Let's Encrypt certificate files, and nginx will
 # not start (or reload) with a config that points at files which do not exist.
